@@ -33,6 +33,7 @@ const verifyToken = (token) => {
     return jsonwebtoken_1.default.verify(token, JWT_SECRET);
 };
 const comparePassword = async (password, hash) => {
+    // console.log(password + " " + hash);
     return await bcryptjs_1.default.compare(password, hash);
 };
 exports.default = {

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Data = exports.UserLogin = exports.SendVerificationCode = exports.ResetPassword = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
+exports.UserLogin = exports.SendVerificationCode = exports.ResetPassword = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
 const user_utill_1 = __importDefault(require("../utills/user-utill"));
 const user_service_1 = __importDefault(require("../services/user-service"));
 const user_model_1 = __importDefault(require("../models/user-model"));
@@ -34,11 +34,12 @@ const RegisterUser = async (req, res) => {
     auth.user = user._id;
     */
     let createdUser = null;
+    user.password = await user_utill_1.default.hashPassword(body.user.password);
     const session = await (0, mongoose_1.startSession)();
     try {
         session.startTransaction();
         createdUser = await user_service_1.default.save(user, session);
-        console.log(createdUser);
+        // console.log(createdUser);
         if (createdUser != null) {
             // Prepare and send email content
             const subject = "Register Success";
@@ -61,36 +62,26 @@ const RegisterUser = async (req, res) => {
     return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.CREATED, "User registered successfully!", createdUser);
 };
 exports.RegisterUser = RegisterUser;
-const Data = async (req, res) => {
-    //const auth: any = req.auth;
-    //console.log(auth);
-    // const user = await userService.findById(auth._id);
-    // //console.log(user + "====");
-    // if (!user) {
-    //   throw new NotFoundError("User not found!");
-    // }
-    return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Profile fetched successfully!", "hello");
-};
-exports.Data = Data;
 const UserLogin = async (req, res) => {
     const body = req.body;
     if (!body.email || !body.password) {
         throw new BadRequestError_1.default("Email and password are required");
     }
     const isAuthCheck = await user_service_1.default.findByEmail(body.email);
+    //console.log(isAuthCheck);
     if (!isAuthCheck)
         throw new NotFoundError_1.default("Invalid email!");
     //compare password
     const isPasswordMatch = await user_utill_1.default.comparePassword(body.password, isAuthCheck.password);
+    //console.log(isPasswordMatch);
     if (!isPasswordMatch)
         throw new BadRequestError_1.default("Invalid password!");
-    //get user
-    const populateUser = await isAuthCheck.populate("user");
-    const token = user_utill_1.default.signToken(populateUser.user);
+    //console.log(isAuthCheck.user);
+    const token = user_utill_1.default.signToken(isAuthCheck);
     let user = {
-        fullName: populateUser.user.fullName,
-        email: populateUser.user.email,
-        role: populateUser.user.role,
+        fullName: isAuthCheck.fullName,
+        email: isAuthCheck.email,
+        role: isAuthCheck.role,
     };
     (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Log in successfully!", {
         token,

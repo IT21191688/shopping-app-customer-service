@@ -40,6 +40,8 @@ const RegisterUser = async (req: Request, res: Response) => {
 
   let createdUser = null;
 
+  user.password = await userUtil.hashPassword(body.user.password);
+
   const session = await startSession();
 
   try {
@@ -47,7 +49,7 @@ const RegisterUser = async (req: Request, res: Response) => {
 
     createdUser = await userService.save(user, session);
 
-    console.log(createdUser);
+    // console.log(createdUser);
 
     if (createdUser != null) {
       // Prepare and send email content
@@ -79,28 +81,6 @@ const RegisterUser = async (req: Request, res: Response) => {
   );
 };
 
-const Data = async (req: Request, res: Response) => {
-  //const auth: any = req.auth;
-
-  //console.log(auth);
-
-  // const user = await userService.findById(auth._id);
-
-  // //console.log(user + "====");
-
-  // if (!user) {
-  //   throw new NotFoundError("User not found!");
-  // }
-
-  return CustomResponse(
-    res,
-    true,
-    StatusCodes.OK,
-    "Profile fetched successfully!",
-    "hello"
-  );
-};
-
 const UserLogin = async (req: Request, res: Response) => {
   const body: any = req.body;
 
@@ -110,6 +90,8 @@ const UserLogin = async (req: Request, res: Response) => {
 
   const isAuthCheck: any = await userService.findByEmail(body.email);
 
+  //console.log(isAuthCheck);
+
   if (!isAuthCheck) throw new NotFoundError("Invalid email!");
 
   //compare password
@@ -118,17 +100,18 @@ const UserLogin = async (req: Request, res: Response) => {
     isAuthCheck.password
   );
 
+  //console.log(isPasswordMatch);
+
   if (!isPasswordMatch) throw new BadRequestError("Invalid password!");
 
-  //get user
-  const populateUser: any = await isAuthCheck.populate("user");
+  //console.log(isAuthCheck.user);
 
-  const token = userUtil.signToken(populateUser.user);
+  const token = userUtil.signToken(isAuthCheck);
 
   let user = {
-    fullName: populateUser.user.fullName,
-    email: populateUser.user.email,
-    role: populateUser.user.role,
+    fullName: isAuthCheck.fullName,
+    email: isAuthCheck.email,
+    role: isAuthCheck.role,
   };
 
   CustomResponse(res, true, StatusCodes.OK, "Log in successfully!", {
@@ -277,5 +260,4 @@ export {
   ResetPassword,
   SendVerificationCode,
   UserLogin,
-  Data,
 };
