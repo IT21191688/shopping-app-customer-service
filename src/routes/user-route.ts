@@ -10,12 +10,15 @@ import {
   SendVerificationCode,
   ResetPassword,
   UserLogin,
+  Data,
 } from "../controllers/user-controller";
 import constants from "../utills/constants";
 
 const UserRouter = Router();
 
 UserRouter.post("/register", RegisterUser);
+
+UserRouter.get("/data", Data);
 
 UserRouter.get(
   "/profile",

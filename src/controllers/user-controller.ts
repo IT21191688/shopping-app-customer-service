@@ -15,6 +15,10 @@ import NotFoundError from "../utills/error/error.classes/NotFoundError";
 import BadRequestError from "../utills/error/error.classes/BadRequestError";
 import constants from "../utills/constants";
 
+// const RegisterUser = async (req: Request, res: Response) => {
+//   console.log("Hello Hello");
+// };
+
 const RegisterUser = async (req: Request, res: Response) => {
   const body: any = req.body;
   const user: any = new User(body.user);
@@ -43,6 +47,8 @@ const RegisterUser = async (req: Request, res: Response) => {
 
     createdUser = await userService.save(user, session);
 
+    console.log(createdUser);
+
     if (createdUser != null) {
       // Prepare and send email content
       const subject = "Register Success";
@@ -70,6 +76,28 @@ const RegisterUser = async (req: Request, res: Response) => {
     StatusCodes.CREATED,
     "User registered successfully!",
     createdUser
+  );
+};
+
+const Data = async (req: Request, res: Response) => {
+  //const auth: any = req.auth;
+
+  //console.log(auth);
+
+  // const user = await userService.findById(auth._id);
+
+  // //console.log(user + "====");
+
+  // if (!user) {
+  //   throw new NotFoundError("User not found!");
+  // }
+
+  return CustomResponse(
+    res,
+    true,
+    StatusCodes.OK,
+    "Profile fetched successfully!",
+    "hello"
   );
 };
 
@@ -249,4 +277,5 @@ export {
   ResetPassword,
   SendVerificationCode,
   UserLogin,
+  Data,
 };

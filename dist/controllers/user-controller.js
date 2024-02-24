@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserLogin = exports.SendVerificationCode = exports.ResetPassword = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
+exports.Data = exports.UserLogin = exports.SendVerificationCode = exports.ResetPassword = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
 const user_utill_1 = __importDefault(require("../utills/user-utill"));
 const user_service_1 = __importDefault(require("../services/user-service"));
 const user_model_1 = __importDefault(require("../models/user-model"));
@@ -16,6 +16,9 @@ const email_templates_1 = __importDefault(require("../utills/email/email-templat
 // Import custom errors
 const NotFoundError_1 = __importDefault(require("../utills/error/error.classes/NotFoundError"));
 const BadRequestError_1 = __importDefault(require("../utills/error/error.classes/BadRequestError"));
+// const RegisterUser = async (req: Request, res: Response) => {
+//   console.log("Hello Hello");
+// };
 const RegisterUser = async (req, res) => {
     const body = req.body;
     const user = new user_model_1.default(body.user);
@@ -35,6 +38,7 @@ const RegisterUser = async (req, res) => {
     try {
         session.startTransaction();
         createdUser = await user_service_1.default.save(user, session);
+        console.log(createdUser);
         if (createdUser != null) {
             // Prepare and send email content
             const subject = "Register Success";
@@ -57,6 +61,17 @@ const RegisterUser = async (req, res) => {
     return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.CREATED, "User registered successfully!", createdUser);
 };
 exports.RegisterUser = RegisterUser;
+const Data = async (req, res) => {
+    //const auth: any = req.auth;
+    //console.log(auth);
+    // const user = await userService.findById(auth._id);
+    // //console.log(user + "====");
+    // if (!user) {
+    //   throw new NotFoundError("User not found!");
+    // }
+    return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Profile fetched successfully!", "hello");
+};
+exports.Data = Data;
 const UserLogin = async (req, res) => {
     const body = req.body;
     if (!body.email || !body.password) {
